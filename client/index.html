@@ -2,7 +2,6 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -10,204 +9,64 @@
       href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
       rel="stylesheet"
     />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
-    />
-    <link rel="stylesheet" href="/client/animation.css" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
-    />
-    <script
-      src="https://cdn.socket.io/3.1.3/socket.io.min.js"
-      integrity="sha384-cPwlPLvBTa3sKAgddT6krw0cJat7egBga3DJepJyrLl4Q9/5WLra3rrnMcyTyOnh"
-      crossorigin="anonymous"
-    ></script>
-    <title>Rock Paper Scissors</title>
+    <title>Leaderboard</title>
     <style>
-      :root {
-        --animate-duration: 1s;
-      }
-
       body {
         font-family: "Press Start 2P", cursive;
-        text-align: center;
-        overflow-x: hidden;
-        background: black;
+        background-color: black;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
       }
-
-      button {
-        letter-spacing: 2.3px;
-        cursor: pointer;
+      a {
+        color: red;
+        text-decoration: none;
+        transition: 0.5s;
       }
-      #picked {
+      a:hover {
+        transform: scale(1.2);
         color: white;
       }
     </style>
   </head>
-  <body class="p-5">
-    <p
-      class="pixel-borders pixel-box--warning pixel-borders--2"
-      style="margin-top: 70px"
-      id="user"
-    ></p>
-    <br />
-    <div style="display: inline-block">
-      <p id="round">Game</p>
-      <span
-        id="wins"
-        class="pixel-borders pixel-box--success animate__animated"
-      >
-        Wins : 0
-      </span>
-      <span id="lose" class="pixel-borders pixel-box--error animate__animated">
-        Lose : 0
-      </span>
-    </div>
+  <body>
+    <h1>Stats/Leaderboard</h1>
+    <pre id="fileContent"></pre>
+    <a href="game.html">Play a game</a>
 
-    <div style="margin: 80px 0px 80px 0px; padding: 20px; height: 90px">
-      <img src="./assets/rock.png" id="user_picked" />
-      <p id="type">ROCK</p>
-    </div>
-    <button id="rock" class="pixel-borders pixel-box--primary-custom">
-      &nbsp;ROCK&nbsp;
-    </button>
-    <button id="paper" class="pixel-borders pixel-box--primary-custom">
-      &nbsp;PAPER&nbsp;
-    </button>
-    <button id="scissors" class="pixel-borders pixel-box--primary-custom">
-      SCISSORS
-    </button>
-    <p id="picked">You picked : ______</p>
-    <p id="player_win_message"></p>
-    <br />
-    <p style="color: red" id="game_reset_message"></p>
     <script>
-      let socket = io.connect(`localhost:3030`);
-      const buttonIds = ["rock", "paper", "scissors"];
-      let win = 0;
-      let lose = 0;
-      let user = prompt("Enter your name : ");
-      let game = 1;
-
-      document.querySelector("#user").innerHTML = `You : ${user.toUpperCase()}`;
-      document.querySelector("#round").innerHTML = `Game ${game}`;
-
-      document.querySelector("#wins").innerHTML = `Wins : ${win}`;
-      document.querySelector("#lose").innerHTML = `Lose : ${lose}`;
-
-      let changeButtonState = (state) => {
-        for (
-          let i = 0;
-          i < document.getElementsByTagName("button").length;
-          i++
-        ) {
-          document.getElementsByTagName("button")[i].disabled = state;
-        }
-      };
-
-      document.addEventListener("click", (e) => {
-        if (
-          e.target.tagName.toLowerCase() === "button" &&
-          buttonIds.includes(e.target.getAttribute("id"))
-        ) {
-          document.querySelector(
-            "#user_picked"
-          ).src = `./assets/${e.target.getAttribute("id")}.png`;
-          document.querySelector("#picked").innerHTML = `You picked : ${e.target
-            .getAttribute("id")
-            .toUpperCase()}`;
-          let data = {
-            player: user,
-            picked: e.target.getAttribute("id"),
-          };
-
-          changeButtonState(true);
-
-          socket.emit("picked", data);
-        }
-      });
-
-      document.addEventListener("mouseover", (e) => {
-        if (
-          e.target.tagName.toLowerCase() === "button" &&
-          buttonIds.includes(e.target.getAttribute("id"))
-        ) {
-          document.querySelector(
-            "#user_picked"
-          ).src = `./assets/${e.target.getAttribute("id")}.png`;
-          document.querySelector("#type").innerHTML = e.target
-            .getAttribute("id")
-            .toUpperCase();
-        }
-      });
-
-      socket.on("result", (result) => {
-        if (result.winner !== "") {
-          if (result.winner.toUpperCase() === user.toUpperCase()) {
-            win++;
-            document.querySelector("#wins").classList.add("animate__flash");
-          } else {
-            lose++;
-            document.querySelector("#lose").classList.add("animate__flash");
-          }
-
-          if (win === 3 || lose === 3) {
-            game++;
-            document.querySelector("#round").innerHTML = `Game ${game}`;
-            lose = 0;
-            win = 0;
-          }
-        }
-
-        document.querySelector("#wins").innerHTML = `Wins : ${win}`;
-        document.querySelector("#lose").innerHTML = `Lose : ${lose}`;
-
-        result.picks.forEach((player) => {
-          if (user.toUpperCase() !== player.name.toUpperCase()) {
-            document.querySelector(
-              "#player_win_message"
-            ).innerHTML += `<p>${player.name.toUpperCase()} - Picked : ${player.picked.toUpperCase()}</p><p></p>`;
-          }
-        });
-
-        if (result.winner === "") {
-          document.querySelector(
-            "#player_win_message"
-          ).innerHTML += `<p style="color:green;" class="animate__animated animate__flash">D R A W</p>`;
-        } else if (user.toUpperCase() !== result.winner.toUpperCase()) {
-          document.querySelector(
-            "#player_win_message"
-          ).innerHTML += `<p style="color:red">Your opponent ${result.winner.toUpperCase()} Win!</p>`;
-        } else {
-          document.querySelector(
-            "#player_win_message"
-          ).innerHTML += `<p style="color:green;" class="animate__animated animate__flash">Congratualations, You win!</p>`;
-        }
-        let i = 3;
-        setTimeout(() => {
-          let timer = setInterval(() => {
-            document.querySelector(
-              "#game_reset_message"
-            ).innerHTML = `Game resets in ${i--}`;
-            if (i === -1) {
-              document.querySelector("#picked").innerHTML = ``;
-              document.querySelector("#player_win_message").innerHTML = "";
-              document.querySelector("#game_reset_message").innerHTML = "";
-              document
-                .querySelector("#lose")
-                .classList.remove("animate__flash");
-              document
-                .querySelector("#wins")
-                .classList.remove("animate__flash");
-              changeButtonState(false);
-              clearInterval(timer);
-              i = 3;
+      function displayTextFileContent(filePath) {
+        fetch(filePath)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Failed to fetch file");
             }
-          }, 1000);
-        }, 0);
-      });
+            return response.text();
+          })
+          .then((text) => {
+            if (text === "") {
+              document.getElementById(
+                "fileContent"
+              ).innerHTML = `<h2 style="color:green; padding-top: 5px;">The leaderboard is empty. Play a game!</h2>`;
+            } else {
+              const lines = text.split("\n");
+              const formattedText = lines
+                .map(
+                  (line) =>
+                    `<h2 style="color:green; padding-top: 5px;">${line}</h2>`
+                )
+                .join("");
+              document.getElementById("fileContent").innerHTML = formattedText;
+            }
+          })
+          .catch((error) => {
+            document.getElementById("fileContent").textContent =
+              "Error: " + error.message;
+          });
+      }
+      displayTextFileContent("../server/db.txt");
     </script>
   </body>
 </html>
