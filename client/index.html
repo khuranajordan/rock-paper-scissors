@@ -3,8 +3,6 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
       rel="stylesheet"
@@ -16,11 +14,28 @@
         background-color: black;
         color: white;
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
-        flex-direction: column;
+        padding: 20px;
+        text-align: center;
+      }
+      h1 {
+        font-size: 2rem;
+      }
+      pre {
+        font-size: 1.2rem;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        max-width: 80%;
+        margin: 0 auto;
+        padding: 10px;
+        border: 1px solid #cecece;
+        background-color: #222;
       }
       a {
+        display: block;
+        margin-top: 20px;
         color: red;
         text-decoration: none;
         transition: 0.5s;
@@ -29,12 +44,36 @@
         transform: scale(1.2);
         color: white;
       }
+      footer {
+        position: absolute;
+        bottom: 30px;
+        color: red;
+      }
+      footer > span {
+        font-size: 1.2rem;
+      }
+      @media screen and (max-width: 600px) {
+        h1 {
+          font-size: 1.2rem;
+          text-wrap: wrap;
+        }
+        pre {
+          font-size: 1rem;
+          text-wrap: wrap;
+        }
+        footer {
+          font-size: 0.9rem;
+          text-align: center;
+        }
+      }
     </style>
   </head>
   <body>
     <h1>Stats/Leaderboard</h1>
     <pre id="fileContent"></pre>
     <a href="game.html">Play a game</a>
+
+    <footer>Made with <span>&hearts;</span> by Rohan Khurana</footer>
 
     <script>
       function displayTextFileContent(filePath) {
@@ -49,7 +88,7 @@
             if (text === "") {
               document.getElementById(
                 "fileContent"
-              ).innerHTML = `<h2 style="color:green; padding-top: 5px;">The leaderboard is empty. Play a game!</h2>`;
+              ).innerHTML = `<h2 style="color:green; margin-top: 5px; border: 1px solid #cecece; padding: 30px">The leaderboard is empty. Play a game!</h2>`;
             } else {
               const lines = text.split("\n");
               const formattedText = lines
